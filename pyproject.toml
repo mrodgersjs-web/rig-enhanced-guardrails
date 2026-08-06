@@ -1,0 +1,66 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rig-enhanced-guardrails"
+version = "0.1.0"
+description = "Proof-gated LLM output validation — every validation decision is a signed, independently-verifiable ProofPacket, not a self-report."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "mrodgersjs-web" }]
+requires-python = ">=3.9"
+keywords = [
+  "llm",
+  "guardrails",
+  "validation",
+  "proof-gate",
+  "hmac",
+  "rig-doctrine",
+  "tac",
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Software Development :: Libraries",
+  "Topic :: Security :: Cryptography",
+]
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
+
+[project.urls]
+Homepage = "https://github.com/mrodgersjs-web/rig-enhanced-guardrails"
+Repository = "https://github.com/mrodgersjs-web/rig-enhanced-guardrails"
+
+[project.scripts]
+rig-guard = "src.guard:_main"
+rig-verify = "src.verify:_main"
+
+# NOTE on package naming: this repo's internal modules import each other as
+# `src.guard`, `src.verify`, `src.proofpacket` — matching the literal
+# `src/guard.py` / `src/verify.py` file layout this reference
+# implementation is required to expose. A production fork intended for
+# wide distribution would rename the `src/` package to something
+# collision-safe (e.g. `rig_guardrails/`) before publishing to PyPI; this
+# reference implementation keeps `src` as the actual importable package
+# name so the file paths and the import paths stay in lockstep.
+[tool.setuptools]
+packages = ["src"]
+
+[tool.setuptools.package-dir]
+src = "src"
+
+[tool.pytest.ini_options]
+# Guarantees `import src...` resolves to the repo root regardless of
+# whether pytest is invoked as `pytest`, `python -m pytest`, or from a
+# different working directory.
+pythonpath = ["."]
+testpaths = ["test"]

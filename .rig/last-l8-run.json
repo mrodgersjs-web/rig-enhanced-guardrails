@@ -1,0 +1,46 @@
+{
+  "key_id": "5c787886d114019d",
+  "layers": [
+    {
+      "layer": 1,
+      "name": "syntax",
+      "status": "pass"
+    },
+    {
+      "layer": 2,
+      "name": "unit",
+      "status": "pass"
+    },
+    {
+      "layer": 3,
+      "name": "integration",
+      "status": "pass"
+    },
+    {
+      "layer": 4,
+      "name": "eval",
+      "status": "pass"
+    },
+    {
+      "layer": 5,
+      "name": "proof",
+      "status": "pass"
+    },
+    {
+      "layer": 6,
+      "name": "gate",
+      "status": "pass"
+    },
+    {
+      "layer": 7,
+      "name": "audit",
+      "status": "pass"
+    }
+  ],
+  "packet_type": "rig.l8.verification_run",
+  "reason": null,
+  "schema_version": "1",
+  "signature": "314689bce55a77f5c713ce00827308277f5fb8753415c158bb1d63a8a2155107",
+  "status": "green",
+  "timestamp": "2026-08-06T02:49:51Z"
+}
