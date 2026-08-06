@@ -1,0 +1,105 @@
+<svg width="1200" height="400" viewBox="0 0 1200 400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .kicker{font-family:'JetBrains Mono',monospace;font-size:11px;fill:#C8A96E;letter-spacing:3px;text-transform:uppercase}
+      .title{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:27px;fill:#F5F0EB}
+      .label{font-family:'Hanken Grotesk','Helvetica Neue',sans-serif;font-size:12px;fill:#F5F0EB;letter-spacing:1px}
+      .mono{font-family:'JetBrains Mono','SF Mono',monospace;font-size:10.5px;fill:#A09890}
+      .mono-gold{font-family:'JetBrains Mono','SF Mono',monospace;font-size:11px;fill:#C8A96E}
+      .caption{font-family:'JetBrains Mono',monospace;font-size:10px;fill:#635D57;letter-spacing:2px;text-transform:uppercase}
+    </style>
+    <linearGradient id="goldFade" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#C8A96E" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#C8A96E" stop-opacity="0.9"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#C8A96E" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#C8A96E" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="ambient" cx="50%" cy="45%" r="60%">
+      <stop offset="0%" stop-color="#181310" stop-opacity="1"/>
+      <stop offset="100%" stop-color="#0A0806" stop-opacity="1"/>
+    </radialGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#C8A96E"/>
+    </marker>
+    <marker id="arrowRed" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#C17767"/>
+    </marker>
+    <marker id="arrowGreen" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#8CA88C"/>
+    </marker>
+  </defs>
+
+  <rect width="1200" height="400" fill="url(#ambient)"/>
+
+  <text x="60" y="42" class="kicker">GUARDRAILS</text>
+  <text x="60" y="72" class="title">Four gates, one clean exit</text>
+
+  <!-- input -->
+  <text x="60" y="200" class="mono-gold">INPUT</text>
+  <path d="M112,192 H165" stroke="#C8A96E" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- main spine -->
+  <path d="M165,192 H1010" stroke="url(#goldFade)" stroke-width="2"/>
+
+  <!-- Gate 1: Schema -->
+  <g transform="translate(230,192)">
+    <rect x="-42" y="-90" width="84" height="180" rx="8" fill="#141210" stroke="#C8A96E" stroke-width="2" opacity="0.95"/>
+    <text y="-100" text-anchor="middle" class="label">SCHEMA</text>
+    <text y="4" text-anchor="middle" class="mono">types</text>
+    <text y="20" text-anchor="middle" class="mono">shapes</text>
+  </g>
+
+  <!-- Gate 2: Policy -->
+  <g transform="translate(430,192)">
+    <rect x="-42" y="-90" width="84" height="180" rx="8" fill="#141210" stroke="#C8A96E" stroke-width="2" opacity="0.95"/>
+    <text y="-100" text-anchor="middle" class="label">POLICY</text>
+    <text y="4" text-anchor="middle" class="mono">rules</text>
+    <text y="20" text-anchor="middle" class="mono">scope</text>
+  </g>
+
+  <!-- Gate 3: Safety -->
+  <g transform="translate(630,192)">
+    <rect x="-42" y="-90" width="84" height="180" rx="8" fill="#141210" stroke="#C8A96E" stroke-width="2" opacity="0.95"/>
+    <text y="-100" text-anchor="middle" class="label">SAFETY</text>
+    <text y="4" text-anchor="middle" class="mono">harm</text>
+    <text y="20" text-anchor="middle" class="mono">limits</text>
+  </g>
+
+  <!-- Gate 4: Audit -->
+  <g transform="translate(830,192)">
+    <rect x="-42" y="-90" width="84" height="180" rx="8" fill="#141210" stroke="#C8A96E" stroke-width="2" opacity="0.95"/>
+    <text y="-100" text-anchor="middle" class="label">AUDIT</text>
+    <text y="4" text-anchor="middle" class="mono">trace</text>
+    <text y="20" text-anchor="middle" class="mono">record</text>
+  </g>
+
+  <!-- rejection branches from each gate -->
+  <path d="M230,282 C230,320 400,330 460,330" fill="none" stroke="#C17767" stroke-width="1.6" stroke-dasharray="2 4" marker-end="url(#arrowRed)" opacity="0.65"/>
+  <path d="M430,282 C430,315 440,325 460,330" fill="none" stroke="#C17767" stroke-width="1.6" stroke-dasharray="2 4" marker-end="url(#arrowRed)" opacity="0.65"/>
+  <path d="M630,282 C630,310 550,325 460,330" fill="none" stroke="#C17767" stroke-width="1.6" stroke-dasharray="2 4" marker-end="url(#arrowRed)" opacity="0.65"/>
+  <path d="M830,282 C830,305 600,325 460,330" fill="none" stroke="#C17767" stroke-width="1.6" stroke-dasharray="2 4" marker-end="url(#arrowRed)" opacity="0.65"/>
+
+  <g transform="translate(460,330)">
+    <circle r="22" fill="#C17767" opacity="0.1"/>
+    <circle r="16" fill="none" stroke="#C17767" stroke-width="2"/>
+    <line x1="-5" y1="-5" x2="5" y2="5" stroke="#C17767" stroke-width="2" stroke-linecap="round"/>
+    <line x1="5" y1="-5" x2="-5" y2="5" stroke="#C17767" stroke-width="2" stroke-linecap="round"/>
+  </g>
+  <text x="500" y="335" class="mono" fill="#C17767" font-family="'JetBrains Mono',monospace" font-size="10.5" letter-spacing="1">REJECTED</text>
+
+  <!-- pass-through to output -->
+  <path d="M872,192 H1010" stroke="url(#goldFade)" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <g transform="translate(1075,192)">
+    <circle r="48" fill="url(#glow)" opacity="0.65"/>
+    <circle r="34" fill="#141210" stroke="#8CA88C" stroke-width="2.4"/>
+    <path d="M-10,0 L-2,9 L11,-9" fill="none" stroke="#8CA88C" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <text x="1075" y="126" text-anchor="middle" class="label">OUTPUT</text>
+  <text x="1075" y="248" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="11" fill="#8CA88C">VALID</text>
+
+  <line x1="60" y1="358" x2="1140" y2="358" stroke="#A09890" stroke-width="1" opacity="0.12"/>
+  <text x="60" y="380" class="caption">every gate can reject, only one path can pass</text>
+</svg>
