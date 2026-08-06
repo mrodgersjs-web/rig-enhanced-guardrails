@@ -1,78 +1,30 @@
-# RIG-Enhanced Guardrails — LLM output validation with proof-gated completion
+<div align="center">
+  <img src="assets/rig-enhanced-guardrails-hero.png" width="100%" />
+</div>
 
-A reference implementation of the **RIG doctrine overlay** applied to the
-[guardrails-ai/guardrails](https://github.com/guardrails-ai/guardrails)
-concept: validating LLM output against a set of checks before it's allowed
-downstream.
+<br/>
 
-This is **not** a fork of guardrails-ai. It's an independent, from-scratch
-reimplementation of the *concept* — a `Guard` that checks output — with one
-structural difference that changes everything downstream of it: **the
-validation decision is not a boolean you trust, it's a signed artifact you
-verify.**
+<div align="center">
+  <h3>RIG-Enhanced Guardrails</h3>
+  <p><em>LLM output validation where the "pass" is a signed artifact, not a boolean you trust.</em></p>
+</div>
 
-## Before / after
+<div align="center">
 
-| | Standard guardrails | RIG-enhanced guardrails |
-|---|---|---|
-| **What you get back** | `True` / `False` (or a raised exception) | A signed **ProofPacket**: status, per-check results, content hashes, timestamp, HMAC-SHA256 signature |
-| **Who decides "it passed"** | The validator itself | The validator *claims* a status; an **independent Verifier** — a separate process/module that never imports the validator's logic — recomputes the claim from raw evidence and confirms or rejects it |
-| **What happens if the result is altered downstream** | Nothing catches it — a boolean is just a boolean | Any single-byte change to the packet (status, a check's `passed` flag, a hash, the reason string) breaks the HMAC signature; the Verifier rejects it |
-| **What happens if the validator has a logic bug** (checks fail internally but `status` gets set wrong) | Silent — you get the boolean the code produced, correct or not | Caught: the Verifier recomputes `status` from the raw `checks` dict independently of what the packet *claims*, and flags any mismatch even when the signature is cryptographically valid |
-| **Can the output be swapped after validation and the "pass" reused?** | Yes — nothing binds the verdict to specific text | No — `output_hash` binds the packet to the exact output text; the Verifier recomputes the hash from independently-supplied text and rejects a mismatch |
-| **A failed validation** | An exception, or a `False` with maybe a message | A `red` ProofPacket — still cryptographically signed, still independently verifiable as an *authentic record of failure* |
-| **Auditability** | Whatever your logs happened to capture | The ProofPacket itself is the audit record — self-contained, tamper-evident, replayable |
+![status](https://img.shields.io/badge/status-reference--implementation-C8A96E?style=flat-square&labelColor=0A0806)
+![tests](https://img.shields.io/badge/tests-16%20passing-5B8C5A?style=flat-square&labelColor=0A0806)
+![python](https://img.shields.io/badge/python-3.11%2B-C8A96E?style=flat-square&labelColor=0A0806)
+![license](https://img.shields.io/badge/license-MIT-C8A96E?style=flat-square&labelColor=0A0806)
 
-## Architecture: Builder ≠ Verifier
+</div>
 
-Per [TAC doctrine](AGENTS.md), the Guard (Builder) and the Verifier are
-kept structurally separate — the Verifier never imports or calls into the
-Guard's validation logic:
+<br/>
 
-```
-LLM output
-    |
-    v
-+----------+   seals verdict as    +--------------------+
-|  Guard   | ---------------------> |    ProofPacket     |
-| (Builder)|  signed HMAC-SHA256   | status + checks +   |
-+----------+       JSON             | hashes + signature  |
-                                    +--------------------+
-                                              |
-                                              v
-                                    +--------------------+
-                                    |     Verifier        |
-                                    |  (independent)       |
-                                    |  1. signature valid?  |
-                                    |  2. status consistent |
-                                    |     with raw checks?  |
-                                    |  3. output hash        |
-                                    |     matches supplied   |
-                                    |     text?               |
-                                    +--------------------+
-                                              |
-                                              v
-                                  overall_valid: true / false
-```
+> 🥇 A `True`/`False` from a validator is just a boolean — nothing catches it if it's altered downstream. Here, a `Guard` seals its verdict into a signed **ProofPacket**, and an independent **Verifier** — one that never imports the Guard's logic — recomputes the claim from raw evidence before anyone trusts it.
 
-Four checks run inside `Guard.validate()` on every call:
+This is an independent, from-scratch reimplementation of the [guardrails-ai/guardrails](https://github.com/guardrails-ai/guardrails) concept — not a fork — with one structural difference that changes everything downstream: **the validation decision is not a boolean you trust, it's a signed artifact you verify.**
 
-1. **`json_schema`** — minimal recursive structural validator (type,
-   required, properties, enum, items) run when a schema is supplied;
-   skipped (and marked `passed: true`) when it isn't.
-2. **`toxicity`** — lexicon/heuristic scorer: severe terms auto-fail,
-   milder terms accumulate a score compared against a threshold. Real,
-   deterministic logic — not a state-of-the-art classifier, and it says
-   so.
-3. **`factuality`** — an explicitly-labeled *placeholder* heuristic that
-   flags unverified absolute claims (`always`, `guaranteed`, `100%`, …)
-   with no adjacent evidence marker. True factuality checking needs
-   retrieval against a knowledge base; this is a real, functioning,
-   honestly-scoped stand-in for that pipeline stage.
-4. **`format`** — non-empty, no null bytes, under a max length, balanced
-   markdown code fences, no disallowed control characters.
-
-## Quickstart
+## 60-second install
 
 ```bash
 pip install -e .
@@ -86,8 +38,6 @@ python3 -m src.guard --output "The forecast is mild with light wind." \
 # Independently verify it — verify.py never imports guard.py
 python3 -m src.verify packet.json
 ```
-
-Programmatic use:
 
 ```python
 from src.guard import Guard
@@ -103,45 +53,59 @@ print(packet["status"])  # "green" or "red"
 
 result = verifier.verify(packet, expected_output=output)
 print(result.overall_valid)   # True only if signature + status + hash all check out
-print(result.reasons)         # non-empty list explaining any failure
 ```
 
-A failed validation still produces a fully signed, independently
-verifiable packet — the point is not to guarantee green, it's to
-guarantee **the record of what happened is authentic**:
+## How it works
 
-```python
-toxic_output = "You are such an idiot, shut up, you are worthless."
-packet = guard.validate(toxic_output)
-print(packet["status"])          # "red"
-print(packet["reason"])          # "toxicity: toxicity score 0.30... "
+<div align="center">
+  <img src="assets/architecture.svg" width="100%" alt="Builder-Verifier architecture: Guard seals a signed ProofPacket, an independent Verifier recomputes signature, status consistency, and output hash" />
+</div>
 
-result = verifier.verify(packet, expected_output=toxic_output)
-print(result.overall_valid)      # True — the RED claim itself is authentic
-```
+<sub align="center">LLM output → Guard seals HMAC-signed ProofPacket → independent Verifier recomputes signature, status, hash → overall_valid</sub>
 
-## Verification layers
+Four checks run inside `Guard.validate()` on every call: **`json_schema`** (recursive structural validator), **`toxicity`** (lexicon/heuristic scorer), **`factuality`** (honestly-scoped placeholder for unverified absolute claims), and **`format`** (length, encoding, fence balance).
 
-- **`.rig/smoke.sh`** — L10 self-evolving smoke test. Runs the Guard and
-  Verifier as real subprocesses across 8 scenarios: valid output, toxic
-  output, a tampered packet, a swapped-output attack, a wrong signing
-  key, and a schema-invalid payload. Any failure is appended to
-  `.rig/hardening-log.md` so the regression surface only grows across
-  runs.
-- **`.rig/verify.sh`** — L8 eight-layer verification: syntax → unit →
-  integration → eval (checks demonstrably discriminate pass/fail, not
-  just always-true/always-false) → proof (a genuine packet verifies, a
-  tampered one doesn't) → gate (runs the full L10 smoke suite) → audit
-  (required doctrine artifacts present) → sign-off (the L8 run itself is
-  sealed as a ProofPacket at `.rig/last-l8-run.json`).
-- **`spec/features/proof-gated-validation.feature`** — OpenSpec/Gherkin
-  scenarios covering valid output, toxic output, and tampered packets as
-  executable behavior specs.
-- **`test/test_guard.py`** — pytest suite: 16 tests across valid,
-  invalid (toxic / schema-violating / malformed), and tampered-packet
-  scenarios, exercising the real cryptographic path (no mocking).
+## Before / after
 
-Run everything:
+| | Standard guardrails | RIG-enhanced guardrails |
+| :-- | :-- | :-- |
+| What you get back | `True` / `False` | Signed **ProofPacket**: status, per-check results, hashes, timestamp, HMAC-SHA256 signature |
+| Who decides "it passed" | The validator itself | An independent **Verifier** recomputes the claim from raw evidence |
+| Result altered downstream | Nothing catches it | Any single-byte change breaks the HMAC signature |
+| Validator has a logic bug | Silent | Caught — Verifier recomputes `status` independently and flags mismatches |
+| Output swapped, "pass" reused | Possible | Blocked — `output_hash` binds the packet to exact output text |
+| Failed validation | Exception or bare `False` | A `red` ProofPacket — still signed, still independently verifiable |
+
+## Benchmark
+
+Single-threaded, CPython 3.11, Apple Silicon, 2,000-call average after warmup:
+
+| Operation | Latency (avg) | Notes |
+| :-- | --: | :-- |
+| Four checks only (no proof sealing) | ~0.004 ms/call | What a standard boolean validator does |
+| `Guard.validate()` — checks + hash + HMAC seal | ~0.010 ms/call | Full ProofPacket construction and signing |
+| `Verifier.verify()` — signature + consistency + hash | ~0.005 ms/call | Independent re-check, no shared state |
+| **Combined round trip** | **~0.015 ms/call** | **~67,000 round trips/sec, single thread** |
+| ProofPacket size | ~750 bytes (JSON) | Trivial to store/replay |
+
+<sup>The cost of proof-gating over a bare boolean is a small, constant HMAC + two SHA-256 hashes per validation — dwarfed by the LLM call the output came from.</sup>
+
+## Why it exists
+
+- **Builder ≠ Verifier** — the Guard and the Verifier are structurally separate; the Verifier never imports the Guard's logic
+- **A failed check is still an authentic record** — a `red` packet is cryptographically signed and independently verifiable
+- **Silent status bugs get caught** — the Verifier recomputes `status` from raw checks, not from what the packet claims
+- **The audit record is the ProofPacket itself** — self-contained, tamper-evident, replayable
+
+<details>
+<summary><strong>Verification layers</strong></summary>
+
+<br/>
+
+- **`.rig/smoke.sh`** — L10 self-evolving smoke test across 8 scenarios (valid, toxic, tampered packet, swapped-output attack, wrong signing key, schema-invalid payload). Failures append to `.rig/hardening-log.md`.
+- **`.rig/verify.sh`** — L8 eight-layer verification: syntax → unit → integration → eval → proof → gate → audit → sign-off.
+- **`spec/features/proof-gated-validation.feature`** — OpenSpec/Gherkin executable behavior specs.
+- **`test/test_guard.py`** — 16 pytest cases across valid, invalid, and tampered-packet scenarios, real cryptographic path, no mocking.
 
 ```bash
 bash .rig/smoke.sh
@@ -149,49 +113,18 @@ bash .rig/verify.sh
 python3 -m pytest test/test_guard.py -v
 ```
 
-## Benchmark
+</details>
 
-Single-threaded, measured on the reference implementation's dev machine
-(CPython 3.11, Apple Silicon), 2,000-call average after warmup. These
-numbers describe *this reference implementation's* overhead — they are
-illustrative, not a formal cross-platform benchmark suite:
+## Documentation
 
-| Operation | Latency (avg) | Notes |
-|---|---|---|
-| Four checks only (no proof sealing) | ~0.004 ms/call | What a standard "boolean" guardrails validator does |
-| `Guard.validate()` — checks + hash + HMAC seal | ~0.010 ms/call | Full ProofPacket construction and signing |
-| `Verifier.verify()` — signature + consistency + hash bind | ~0.005 ms/call | Independent re-check, no shared state beyond the key |
-| Combined guard + verify round trip | ~0.015 ms/call | ~67,000 round trips/sec, single thread |
-| ProofPacket size | ~750 bytes (JSON) | One packet per validated output; trivial to store/replay |
+| Path | Role |
+| :-- | :-- |
+| [`AGENTS.md`](AGENTS.md) | TAC doctrine — Core Four, Builder≠Verifier, closed-loop architecture |
+| [`src/proofpacket.py`](src/proofpacket.py) | Shared crypto primitives only |
+| [`src/guard.py`](src/guard.py) | Builder — 4 checks + ProofPacket sealing |
+| [`src/verify.py`](src/verify.py) | Verifier — independent signature + consistency + output-binding checks |
+| [LICENSE](LICENSE) | MIT |
 
-The cost of proof-gating over a bare boolean check is a small, constant
-HMAC-SHA256 + two SHA-256 hashes per validation — dwarfed in any real
-deployment by the cost of the LLM call the output came from. The payoff
-is that "this output passed validation" becomes a claim a *different*
-piece of code can check, rather than one you have to trust the validator
-told the truth about.
+---
 
-## Repository layout
-
-```
-README.md                                  — this file
-AGENTS.md                                   — TAC doctrine: Core Four, Builder≠Verifier, closed-loop architecture
-LICENSE                                     — MIT
-pyproject.toml                              — pip installable, `rig-guard` / `rig-verify` CLI entry points
-src/
-  proofpacket.py                            — shared crypto primitives ONLY (canonicalize, hash, sign, verify)
-  guard.py                                  — Builder: 4 checks + ProofPacket sealing
-  verify.py                                 — Verifier: independent signature + consistency + output-binding checks
-.rig/
-  smoke.sh                                  — L10 self-evolving smoke test
-  verify.sh                                 — L8 eight-layer verification
-  hardening-log.md                          — append-only regression log written by smoke.sh
-spec/features/
-  proof-gated-validation.feature            — OpenSpec/Gherkin behavior specs
-test/
-  test_guard.py                             — pytest suite (16 tests, real crypto path, no mocking)
-```
-
-## License
-
-MIT — see [LICENSE](LICENSE).
+<div align="center"><sub>Built by Mike Rodgers · Forward Deployed Engineer · <a href="https://rodgersintelligence.com">rodgersintelligence.com</a></sub></div>
