@@ -1,4 +1,5 @@
 <div align="center">
+<p align="center"><img src="docs/rig-enhanced-guardrails-demo.gif" alt="rig-enhanced-guardrails demo" width="720" /></p>
   <img src="assets/rig-enhanced-guardrails-hero.png" width="100%" />
 </div>
 
