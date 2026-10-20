@@ -4,12 +4,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "rig-enhanced-guardrails"
-version = "0.1.0"
+version = "0.2.0"
 description = "Proof-gated LLM output validation — every validation decision is a signed, independently-verifiable ProofPacket, not a self-report."
 readme = "README.md"
 license = { text = "MIT" }
-authors = [{ name = "mrodgersjs-web" }]
-requires-python = ">=3.9"
+authors = [{ name = "Mike Rodgers", email = "mrodgersjs@gmail.com" }]
+requires-python = ">=3.10"
 keywords = [
   "llm",
   "guardrails",
@@ -24,10 +24,10 @@ classifiers = [
   "Intended Audience :: Developers",
   "License :: OSI Approved :: MIT License",
   "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
   "Topic :: Software Development :: Libraries",
   "Topic :: Security :: Cryptography",
 ]
@@ -39,6 +39,8 @@ dev = ["pytest>=7.0"]
 [project.urls]
 Homepage = "https://github.com/mrodgersjs-web/rig-enhanced-guardrails"
 Repository = "https://github.com/mrodgersjs-web/rig-enhanced-guardrails"
+Issues = "https://github.com/mrodgersjs-web/rig-enhanced-guardrails/issues"
+Changelog = "https://github.com/mrodgersjs-web/rig-enhanced-guardrails/blob/main/CHANGELOG.md"
 
 [project.scripts]
 rig-guard = "src.guard:_main"
