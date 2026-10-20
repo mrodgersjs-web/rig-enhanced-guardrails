@@ -1,20 +1,20 @@
 """
-guard.py — the Builder. Validates LLM output and seals the result in a
+guard.py - the Builder. Validates LLM output and seals the result in a
 signed ProofPacket.
 
 Per TAC doctrine (Builder != Verifier), this module is the ONLY place
 validation checks are implemented. verify.py deliberately does NOT import
 anything from this file except (indirectly, via proofpacket.py) the
-signing primitives — an independent Verifier must never re-run the
+signing primitives - an independent Verifier must never re-run the
 Builder's own logic to "confirm" its own claim.
 
 Four checks run on every call to Guard.validate():
-  1. json_schema  — structural validation against an optional schema
-  2. toxicity     — lexicon/heuristic toxicity scoring
-  3. factuality   — PLACEHOLDER heuristic for unverifiable absolute claims
+  1. json_schema  - structural validation against an optional schema
+  2. toxicity     - lexicon/heuristic toxicity scoring
+  3. factuality   - PLACEHOLDER heuristic for unverifiable absolute claims
                     (true factuality checking needs retrieval; this is a
                     documented, functioning heuristic, not a stub)
-  4. format       — basic well-formedness (length, encoding, fences)
+  4. format       - basic well-formedness (length, encoding, fences)
 
 Guard.validate() ALWAYS returns a fully signed ProofPacket: green when
 every check passes, red (with `reason`) the moment any check fails.
@@ -48,7 +48,7 @@ _TYPE_MAP = {
 def _validate_json_schema(value: Any, schema: dict, path: str = "$") -> list[str]:
     """Minimal recursive JSON-schema validator (stdlib only).
 
-    Supports: type, required, properties, items, enum — enough to catch
+    Supports: type, required, properties, items, enum - enough to catch
     the structural defects that matter for guardrails use cases without
     pulling in an external `jsonschema` dependency.
     """
@@ -92,7 +92,7 @@ def _validate_json_schema(value: Any, schema: dict, path: str = "$") -> list[str
 
 def check_json_schema(output: str, schema: dict | None) -> tuple[bool, str]:
     if schema is None:
-        return True, "no schema provided — structural check skipped"
+        return True, "no schema provided - structural check skipped"
     try:
         parsed = json.loads(output) if isinstance(output, str) else output
     except json.JSONDecodeError as exc:
@@ -104,7 +104,7 @@ def check_json_schema(output: str, schema: dict | None) -> tuple[bool, str]:
 
 
 # --------------------------------------------------------------------------
-# Check 2: toxicity (lexicon-based heuristic — real, deterministic, not a
+# Check 2: toxicity (lexicon-based heuristic - real, deterministic, not a
 # stub; not a state-of-the-art classifier)
 # --------------------------------------------------------------------------
 
@@ -145,7 +145,7 @@ def check_toxicity(output: str) -> tuple[bool, str]:
 
 
 # --------------------------------------------------------------------------
-# Check 3: factuality — PLACEHOLDER heuristic
+# Check 3: factuality - PLACEHOLDER heuristic
 # --------------------------------------------------------------------------
 
 _OVERCONFIDENT_PATTERN = re.compile(
@@ -160,7 +160,7 @@ def check_factuality_placeholder(output: str) -> tuple[bool, str]:
     """NOT true factuality checking (that requires retrieval + a knowledge
     base). This heuristic flags absolute/overconfident claims that carry
     no adjacent evidence marker, which is a real, useful, and honest
-    signal on its own — but it is explicitly a placeholder for a fuller
+    signal on its own - but it is explicitly a placeholder for a fuller
     factuality pipeline.
     """
     matches = _OVERCONFIDENT_PATTERN.findall(output)
@@ -170,11 +170,11 @@ def check_factuality_placeholder(output: str) -> tuple[bool, str]:
     if has_evidence:
         return True, (
             f"absolute claim(s) {matches} present but adjacent evidence "
-            "marker found — treated as sourced"
+            "marker found - treated as sourced"
         )
     return False, (
         f"unverified absolute claim(s) with no evidence marker: {matches} "
-        "(factuality placeholder heuristic — not a full fact-check)"
+        "(factuality placeholder heuristic - not a full fact-check)"
     )
 
 
@@ -285,14 +285,14 @@ def _main(argv: list[str] | None = None) -> int:
     if args.output is not None:
         output_text = args.output
     elif args.output_file:
-        with open(args.output_file, "r", encoding="utf-8") as f:
+        with open(args.output_file, encoding="utf-8") as f:
             output_text = f.read()
     else:
         output_text = sys.stdin.read()
 
     schema = None
     if args.schema:
-        with open(args.schema, "r", encoding="utf-8") as f:
+        with open(args.schema, encoding="utf-8") as f:
             schema = json.load(f)
 
     guard = Guard()
