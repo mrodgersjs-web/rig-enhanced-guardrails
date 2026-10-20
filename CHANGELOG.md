@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [0.2.0] - 2026-10-19
 
+- This commit removes an unused `pytest` import from `test/test_repo_hygiene.py` so `ruff check .` passes in CI.
+
 ### Added
 
 - `src/validators.py` exposing the four checks (json_schema, toxicity,
