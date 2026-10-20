@@ -13,7 +13,7 @@
 <div align="center">
 
 ![status](https://img.shields.io/badge/status-reference--implementation-C8A96E?style=flat-square&labelColor=0A0806)
-[![CI](https://img.shields.io/github/actions/workflow/status/mrodgersjs-web/rig-enhanced-guardrails/smoke.yml?branch=main)](https://github.com/mrodgersjs-web/rig-enhanced-guardrails/actions/workflows/smoke.yml)
+[![CI](https://img.shields.io/github/actions/workflow/status/mrodgersjs-web/rig-enhanced-guardrails/ci.yml?branch=main&label=CI)](https://github.com/mrodgersjs-web/rig-enhanced-guardrails/actions/workflows/ci.yml) [![smoke](https://img.shields.io/github/actions/workflow/status/mrodgersjs-web/rig-enhanced-guardrails/smoke.yml?branch=main&label=smoke)](https://github.com/mrodgersjs-web/rig-enhanced-guardrails/actions/workflows/smoke.yml)
 ![python](https://img.shields.io/badge/python-3.11%2B-C8A96E?style=flat-square&labelColor=0A0806)
 ![license](https://img.shields.io/badge/license-MIT-C8A96E?style=flat-square&labelColor=0A0806)
 
@@ -24,6 +24,18 @@
 > 🥇 A `True`/`False` from a validator is just a boolean - nothing catches it if it's altered downstream. Here, a `Guard` seals its verdict into a signed **ProofPacket**, and an independent **Verifier** - one that never imports the Guard's logic - recomputes the claim from raw evidence before anyone trusts it.
 
 This is an independent, from-scratch reimplementation of the [guardrails-ai/guardrails](https://github.com/guardrails-ai/guardrails) concept - not a fork - with one structural difference that changes everything downstream: **the validation decision is not a boolean you trust, it's a signed artifact you verify.**
+
+## Install
+
+This package is **not** published on PyPI; bare `pip install rig-enhanced-guardrails` will 404. From a fresh checkout:
+
+```bash
+git clone https://github.com/mrodgersjs-web/rig-enhanced-guardrails
+cd rig-enhanced-guardrails
+pip install -e ".[dev]"
+```
+
+(`pip install git+https://github.com/mrodgersjs-web/rig-enhanced-guardrails` is also supported.)
 
 ## 60-second install
 
