@@ -1,9 +1,9 @@
 """
-proofpacket.py — shared cryptographic primitives for RIG ProofPackets.
+proofpacket.py - shared cryptographic primitives for RIG ProofPackets.
 
 This module contains ONLY mechanical infrastructure (canonicalization,
 hashing, HMAC signing/verification). It contains NO validation logic and
-NO trust decisions — those live in guard.py (the Builder) and verify.py
+NO trust decisions - those live in guard.py (the Builder) and verify.py
 (the Verifier) respectively, and the two are intentionally kept separate
 per TAC doctrine (Builder != Verifier).
 
@@ -19,8 +19,9 @@ import hmac
 import json
 import os
 import sys
+from collections.abc import Mapping
 from datetime import datetime, timezone
-from typing import Any, Mapping
+from typing import Any
 
 PACKET_TYPE_GUARD_VALIDATION = "rig.guard.validation"
 PACKET_SCHEMA_VERSION = "1"
@@ -38,7 +39,7 @@ def load_key(env_var: str = "RIG_PROOF_HMAC_KEY") -> tuple[bytes, str]:
     """Load the HMAC signing/verification key and a stable key_id label.
 
     Returns (key_bytes, key_id). key_id is never secret and is embedded in
-    the packet so a Verifier knows which key material to load — it is not
+    the packet so a Verifier knows which key material to load - it is not
     itself sufficient to verify anything.
     """
     raw = os.environ.get(env_var)
@@ -46,7 +47,7 @@ def load_key(env_var: str = "RIG_PROOF_HMAC_KEY") -> tuple[bytes, str]:
         key_id = hashlib.sha256(raw.encode("utf-8")).hexdigest()[:16]
         return raw.encode("utf-8"), key_id
     print(
-        f"[proofpacket] WARNING: {env_var} not set — using insecure demo "
+        f"[proofpacket] WARNING: {env_var} not set - using insecure demo "
         "fallback key. Set RIG_PROOF_HMAC_KEY before relying on this in "
         "any non-demo context.",
         file=sys.stderr,
@@ -67,7 +68,7 @@ def utc_timestamp() -> str:
 def canonicalize(payload: Mapping[str, Any]) -> bytes:
     """Deterministic byte encoding of a payload dict for signing.
 
-    Sorted keys, no whitespace, ensure_ascii — the same payload always
+    Sorted keys, no whitespace, ensure_ascii - the same payload always
     canonicalizes to the same bytes regardless of dict insertion order.
     """
     return json.dumps(
@@ -90,7 +91,7 @@ def split_packet(packet: Mapping[str, Any]) -> tuple[dict, str | None]:
 def seal(payload: Mapping[str, Any], key: bytes, key_id: str) -> dict:
     """Attach key_id + signature to a payload, producing a finished packet.
 
-    `payload` MUST NOT already contain a `signature` field — that field is
+    `payload` MUST NOT already contain a `signature` field - that field is
     exclusively computed here, over everything else including `key_id`.
     """
     if SIGNATURE_FIELD in payload:
@@ -105,7 +106,7 @@ def seal(payload: Mapping[str, Any], key: bytes, key_id: str) -> dict:
 def recompute_signature(packet: Mapping[str, Any], key: bytes) -> str:
     """Recompute what the signature SHOULD be for a packet's current payload.
 
-    Does not compare — callers use hmac.compare_digest against the packet's
+    Does not compare - callers use hmac.compare_digest against the packet's
     stored signature. Exposed separately so verify.py can report both
     values for debugging without ever short-circuiting the constant-time
     comparison itself.
