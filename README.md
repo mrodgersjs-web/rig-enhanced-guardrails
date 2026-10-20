@@ -21,9 +21,9 @@
 
 <br/>
 
-> 🥇 A `True`/`False` from a validator is just a boolean — nothing catches it if it's altered downstream. Here, a `Guard` seals its verdict into a signed **ProofPacket**, and an independent **Verifier** — one that never imports the Guard's logic — recomputes the claim from raw evidence before anyone trusts it.
+> 🥇 A `True`/`False` from a validator is just a boolean - nothing catches it if it's altered downstream. Here, a `Guard` seals its verdict into a signed **ProofPacket**, and an independent **Verifier** - one that never imports the Guard's logic - recomputes the claim from raw evidence before anyone trusts it.
 
-This is an independent, from-scratch reimplementation of the [guardrails-ai/guardrails](https://github.com/guardrails-ai/guardrails) concept — not a fork — with one structural difference that changes everything downstream: **the validation decision is not a boolean you trust, it's a signed artifact you verify.**
+This is an independent, from-scratch reimplementation of the [guardrails-ai/guardrails](https://github.com/guardrails-ai/guardrails) concept - not a fork - with one structural difference that changes everything downstream: **the validation decision is not a boolean you trust, it's a signed artifact you verify.**
 
 ## 60-second install
 
@@ -36,7 +36,7 @@ export RIG_PROOF_HMAC_KEY="your-secret-key-here"
 python3 -m src.guard --output "The forecast is mild with light wind." \
   --out packet.json
 
-# Independently verify it — verify.py never imports guard.py
+# Independently verify it - verify.py never imports guard.py
 python3 -m src.verify packet.json
 ```
 
@@ -73,9 +73,9 @@ Four checks run inside `Guard.validate()` on every call: **`json_schema`** (recu
 | What you get back | `True` / `False` | Signed **ProofPacket**: status, per-check results, hashes, timestamp, HMAC-SHA256 signature |
 | Who decides "it passed" | The validator itself | An independent **Verifier** recomputes the claim from raw evidence |
 | Result altered downstream | Nothing catches it | Any single-byte change breaks the HMAC signature |
-| Validator has a logic bug | Silent | Caught — Verifier recomputes `status` independently and flags mismatches |
-| Output swapped, "pass" reused | Possible | Blocked — `output_hash` binds the packet to exact output text |
-| Failed validation | Exception or bare `False` | A `red` ProofPacket — still signed, still independently verifiable |
+| Validator has a logic bug | Silent | Caught - Verifier recomputes `status` independently and flags mismatches |
+| Output swapped, "pass" reused | Possible | Blocked - `output_hash` binds the packet to exact output text |
+| Failed validation | Exception or bare `False` | A `red` ProofPacket - still signed, still independently verifiable |
 
 ## Benchmark
 
@@ -84,29 +84,29 @@ Single-threaded, CPython 3.11, Apple Silicon, 2,000-call average after warmup:
 | Operation | Latency (avg) | Notes |
 | :-- | --: | :-- |
 | Four checks only (no proof sealing) | ~0.004 ms/call | What a standard boolean validator does |
-| `Guard.validate()` — checks + hash + HMAC seal | ~0.010 ms/call | Full ProofPacket construction and signing |
-| `Verifier.verify()` — signature + consistency + hash | ~0.005 ms/call | Independent re-check, no shared state |
+| `Guard.validate()` - checks + hash + HMAC seal | ~0.010 ms/call | Full ProofPacket construction and signing |
+| `Verifier.verify()` - signature + consistency + hash | ~0.005 ms/call | Independent re-check, no shared state |
 | **Combined round trip** | **~0.015 ms/call** | **~67,000 round trips/sec, single thread** |
 | ProofPacket size | ~750 bytes (JSON) | Trivial to store/replay |
 
-<sup>The cost of proof-gating over a bare boolean is a small, constant HMAC + two SHA-256 hashes per validation — dwarfed by the LLM call the output came from.</sup>
+<sup>The cost of proof-gating over a bare boolean is a small, constant HMAC + two SHA-256 hashes per validation - dwarfed by the LLM call the output came from.</sup>
 
 ## Why it exists
 
-- **Builder ≠ Verifier** — the Guard and the Verifier are structurally separate; the Verifier never imports the Guard's logic
-- **A failed check is still an authentic record** — a `red` packet is cryptographically signed and independently verifiable
-- **Silent status bugs get caught** — the Verifier recomputes `status` from raw checks, not from what the packet claims
-- **The audit record is the ProofPacket itself** — self-contained, tamper-evident, replayable
+- **Builder ≠ Verifier** - the Guard and the Verifier are structurally separate; the Verifier never imports the Guard's logic
+- **A failed check is still an authentic record** - a `red` packet is cryptographically signed and independently verifiable
+- **Silent status bugs get caught** - the Verifier recomputes `status` from raw checks, not from what the packet claims
+- **The audit record is the ProofPacket itself** - self-contained, tamper-evident, replayable
 
 <details>
 <summary><strong>Verification layers</strong></summary>
 
 <br/>
 
-- **`.rig/smoke.sh`** — L10 self-evolving smoke test across 8 scenarios (valid, toxic, tampered packet, swapped-output attack, wrong signing key, schema-invalid payload). Failures append to `.rig/hardening-log.md`.
-- **`.rig/verify.sh`** — L8 eight-layer verification: syntax → unit → integration → eval → proof → gate → audit → sign-off.
-- **`spec/features/proof-gated-validation.feature`** — OpenSpec/Gherkin executable behavior specs.
-- **`test/test_guard.py`** — 16 pytest cases across valid, invalid, and tampered-packet scenarios, real cryptographic path, no mocking.
+- **`.rig/smoke.sh`** - L10 self-evolving smoke test across 8 scenarios (valid, toxic, tampered packet, swapped-output attack, wrong signing key, schema-invalid payload). Failures append to `.rig/hardening-log.md`.
+- **`.rig/verify.sh`** - L8 eight-layer verification: syntax → unit → integration → eval → proof → gate → audit → sign-off.
+- **`spec/features/proof-gated-validation.feature`** - OpenSpec/Gherkin executable behavior specs.
+- **`test/test_guard.py`** - 16 pytest cases across valid, invalid, and tampered-packet scenarios, real cryptographic path, no mocking.
 
 ```bash
 bash .rig/smoke.sh
@@ -120,10 +120,10 @@ python3 -m pytest test/test_guard.py -v
 
 | Path | Role |
 | :-- | :-- |
-| [`AGENTS.md`](AGENTS.md) | TAC doctrine — Core Four, Builder≠Verifier, closed-loop architecture |
+| [`AGENTS.md`](AGENTS.md) | TAC doctrine - Core Four, Builder≠Verifier, closed-loop architecture |
 | [`src/proofpacket.py`](src/proofpacket.py) | Shared crypto primitives only |
-| [`src/guard.py`](src/guard.py) | Builder — 4 checks + ProofPacket sealing |
-| [`src/verify.py`](src/verify.py) | Verifier — independent signature + consistency + output-binding checks |
+| [`src/guard.py`](src/guard.py) | Builder - 4 checks + ProofPacket sealing |
+| [`src/verify.py`](src/verify.py) | Verifier - independent signature + consistency + output-binding checks |
 | [LICENSE](LICENSE) | MIT |
 
 ---
