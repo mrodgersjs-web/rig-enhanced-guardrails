@@ -1,5 +1,5 @@
 """
-test_guard.py — pytest suite covering valid/invalid/tampered scenarios.
+test_guard.py - pytest suite covering valid/invalid/tampered scenarios.
 
 Tests exercise the real Guard + Verifier objects (no mocking of the
 cryptographic path) so a broken signature scheme or a broken check would
@@ -77,7 +77,7 @@ def test_toxic_output_produces_red_packet(guard: Guard):
 def test_red_packet_still_verifies_as_internally_consistent(
     guard: Guard, verifier: Verifier
 ):
-    """A correctly-signed red packet is a VALID proof of failure — the
+    """A correctly-signed red packet is a VALID proof of failure - the
     Verifier's job is to confirm the packet is authentic and internally
     consistent, not to demand a green outcome."""
     output = "You are such an idiot, shut up, you are worthless."
@@ -172,7 +172,7 @@ def test_tampered_status_field_fails_signature_verification(
     assert packet["status"] == "green"
 
     tampered = copy.deepcopy(packet)
-    # Flip a real failure's outcome without re-signing — simulates an
+    # Flip a real failure's outcome without re-signing - simulates an
     # attacker trying to launder a red packet into a green one.
     tampered["checks"]["toxicity"]["passed"] = False
     tampered["status"] = "red"
@@ -213,7 +213,7 @@ def test_status_forged_to_green_without_editing_checks_still_caught(
     guard: Guard, verifier: Verifier
 ):
     """Even a single-field tamper (only `status`, checks left alone) must
-    be caught by the signature — that is the entire point of signing the
+    be caught by the signature - that is the entire point of signing the
     whole payload rather than just a status flag."""
     output = "idiot shut up worthless"  # will legitimately fail toxicity
     packet = guard.validate(output)
