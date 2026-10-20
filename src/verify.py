@@ -1,25 +1,25 @@
 """
-verify.py — the Verifier. Independently re-checks a ProofPacket's
+verify.py - the Verifier. Independently re-checks a ProofPacket's
 signature. Per TAC doctrine (Builder != Verifier), this module
 deliberately does NOT import guard.py or re-run any of its checks.
 
 The Verifier trusts nothing the packet *claims* about itself:
 
-  1. Cryptographic integrity — recompute the HMAC signature over the
+  1. Cryptographic integrity - recompute the HMAC signature over the
      packet's own payload and compare (constant-time) against the stored
      signature. This is what catches tampering: change ANY field after
      sealing (status, a check's `passed` bit, a hash, the reason string)
      and the signature no longer matches.
 
-  2. Logical consistency — independently recompute what `status` SHOULD
+  2. Logical consistency - independently recompute what `status` SHOULD
      be from the raw `checks` dict (green iff every check's `passed` is
      true) and compare that to the `status` field the packet asserts.
      This catches a *correctly signed but internally inconsistent*
-     packet — e.g. a Guard bug that flips `status` to "green" while a
+     packet - e.g. a Guard bug that flips `status` to "green" while a
      check actually failed. A valid signature alone is NOT sufficient;
      the Verifier still audits the claim against its own evidence.
 
-  3. Output binding (optional) — if the original output text is supplied
+  3. Output binding (optional) - if the original output text is supplied
      independently, recompute its hash and compare against the packet's
      `output_hash`. This catches a swapped-output attack: presenting a
      genuinely-signed packet alongside a *different* piece of text than
@@ -64,7 +64,7 @@ class VerificationResult:
 
 
 class Verifier:
-    """Independent re-checker. Holds signing-key material only — never
+    """Independent re-checker. Holds signing-key material only - never
     the Guard's validation logic."""
 
     def __init__(self, key: bytes | None = None, key_id: str | None = None):
@@ -80,12 +80,12 @@ class Verifier:
     ) -> VerificationResult:
         reasons: list[str] = []
 
-        # 1. Cryptographic integrity — never trust the packet's own claim.
+        # 1. Cryptographic integrity - never trust the packet's own claim.
         sig_ok = pp.signature_valid(packet, self.key)
         if not sig_ok:
             reasons.append(
                 "signature mismatch: packet payload does not match its "
-                "signature — packet has been tampered with, corrupted, "
+                "signature - packet has been tampered with, corrupted, "
                 "or was signed with a different key"
             )
 
@@ -98,7 +98,7 @@ class Verifier:
                 f"verifier is using key_id={self.key_id!r}"
             )
 
-        # 2. Logical consistency — recompute status from raw checks,
+        # 2. Logical consistency - recompute status from raw checks,
         # independent of what the packet's `status` field asserts.
         checks = packet.get("checks", {})
         if not isinstance(checks, dict) or not checks:
@@ -119,7 +119,7 @@ class Verifier:
                     f"status={recomputed_status!r}"
                 )
 
-        # 3. Output binding — only if the caller supplied the original
+        # 3. Output binding - only if the caller supplied the original
         # output independently (i.e. is NOT just trusting the packet).
         output_matches: bool | None = None
         if expected_output is not None:
@@ -129,7 +129,7 @@ class Verifier:
             if not output_matches:
                 reasons.append(
                     "output_hash mismatch: the supplied output text does "
-                    "not hash to the value recorded in the packet — this "
+                    "not hash to the value recorded in the packet - this "
                     "packet does not attest to this output"
                 )
 
@@ -161,12 +161,12 @@ def _main(argv: list[str] | None = None) -> int:
     if args.packet == "-":
         packet = json.load(sys.stdin)
     else:
-        with open(args.packet, "r", encoding="utf-8") as f:
+        with open(args.packet, encoding="utf-8") as f:
             packet = json.load(f)
 
     expected_output = None
     if args.output_file:
-        with open(args.output_file, "r", encoding="utf-8") as f:
+        with open(args.output_file, encoding="utf-8") as f:
             expected_output = f.read()
 
     verifier = Verifier()
