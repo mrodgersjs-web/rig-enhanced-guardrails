@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import json
-
 import pytest
 
 from src.validators import (
@@ -15,7 +13,6 @@ from src.validators import (
     check_toxicity_callable,
     run_checks,
 )
-
 
 # --------------------------------------------------------------------------
 # check_json_schema
