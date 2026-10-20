@@ -23,7 +23,7 @@ jobs:
         run: pip install -e '.[dev]'
       - name: Lint
         run: ruff check .
-      - name: Test (fast path: no coverage)
+      - name: "Test (fast path, no coverage)"
         # Coverage was observed to hang in some environments; the
         # dedicated coverage step below runs coverage run -m pytest
         # in its own subprocess so a hung coverage run is caught by
@@ -38,4 +38,6 @@ jobs:
         # cleanly instead of running until the job's 15-minute
         # timeout.
         timeout-minutes: 12
-        run: coverage run -m pytest -q --cov=src --cov-report=term-missing
+        run: |
+          coverage run --source=src -m pytest -q
+          coverage report -m

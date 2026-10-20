@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [0.2.0] - 2026-10-19
 
+- This commit fixes `.github/workflows/ci.yml`, which GitHub rejected as invalid YAML (an unquoted colon in a step name), runs coverage as `coverage run` plus `coverage report`, and adds `test/test_workflows_parse.py` (PyYAML now in the dev extra) so an unparsable workflow fails locally.
+
 - This commit removes an unused `pytest` import from `test/test_repo_hygiene.py` so `ruff check .` passes in CI.
 
 ### Added
